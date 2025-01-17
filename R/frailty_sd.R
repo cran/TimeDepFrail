@@ -1,5 +1,5 @@
 #' @title
-#' Frailty standard deviation for the 'Adapted Paik et al.'s Model'
+#' Internal function for frailty standard deviation for the 'Adapted Paik et al.'s Model'
 #'
 #' @description
 #' The function computes both the standard deviation and the variance of the time-dependent
@@ -11,10 +11,9 @@
 #' - Considering only the time-dependent spread of the clusters/groups/centre: \eqn{sd(Z_{jk}) = \mu_2 * \gamma_k}.
 #' In this case, the flag_fullsd should be FALSE.
 #'
-#' - Considering both the time-dependent and constant spread of the clusters: \eqn{sd(Z_{jk}) = \mu_1 * \nu \mu_2 * \gamma_k}.
+#' - Considering both the time-dependent and constant spread of the clusters: \eqn{sd(Z_{jk}) = \mu_1 * \nu + \mu_2 * \gamma_k}.
 #' The new added term only moves upward the other case and the flag_fullsd should be TRUE.
 #'
-#' The final case only depends on what we want to observe.
 #'
 #' @param optimal_params Optimal parameter vector, estimated through multi-dimensional optimization of the log-likelihood function.
 #' @param time_axis Partition of the temporal domain.
@@ -25,7 +24,7 @@
 #' @param flag_fullsd Do we want to compute the full frailty standard deviation (second case)? If so, the flag must be TRUE,
 #' otherwise (first case), FALSE.
 #'
-#' @return S3 class object 'FrailtyDispersion' containing both two numerical vectors of length equal to the numbero of intervals of the time-domain:
+#' @return S3 class object 'FrailtyDispersion' containing both two numerical vectors of length equal to the number of intervals of the time-domain:
 #' - FrailtyVariance
 #' - FrailtyStandardDevation
 
@@ -92,6 +91,7 @@ frailty_Sd.AdPaik <- function (optimal_params, time_axis, n_regressors,
 
   return (return_list)
 }
+
 #-------------------------------------------------------------------------------
 #' @title
 #' Frailty standard deviation and Variance for the 'Adapted Paik et al.'s Model'
@@ -106,7 +106,7 @@ frailty_Sd.AdPaik <- function (optimal_params, time_axis, n_regressors,
 #' - Considering only the time-dependent spread of the clusters/groups/centre: \eqn{sd(Z_{jk}) = \mu_2 * \gamma_k}.
 #' In this case, the flag_fullsd should be FALSE.
 #'
-#' - Considering both the time-dependent and constant spread of the clusters: \eqn{sd(Z_{jk}) = \mu_1 * \nu \mu_2 * \gamma_k}.
+#' - Considering both the time-dependent and constant spread of the clusters: \eqn{sd(Z_{jk}) = \mu_1 * \nu + \mu_2 * \gamma_k}.
 #' The new added term only moves upward the other case and the flag_fullsd should be TRUE.
 #'
 #' The final case only depends on what we want to observe.
@@ -116,7 +116,7 @@ frailty_Sd.AdPaik <- function (optimal_params, time_axis, n_regressors,
 #' @param flag_fullsd Logical value. Do we want to compute the full frailty standard deviation? If so, the flag must be TRUE,
 #' otherwise, FALSE.
 #'
-#' @return S3 class object 'FrailtyDispersion' containing both two numerical vectors of length equal to the numbero of intervals of the time-domain:
+#' @return S3 class object 'FrailtyDispersion' containing both two numerical vectors of length equal to the number of intervals of the time-domain:
 #' - FrailtyVariance
 #' - FrailtyStandardDevation
 #'
@@ -142,7 +142,7 @@ frailty_Sd.AdPaik <- function (optimal_params, time_axis, n_regressors,
 #' frailty_sd(result, FALSE)
 #' }
 
-frailty_sd.AdPaik <- function (result, flag_fullsd = TRUE){
+frailty_sd.AdPaik <- function (result, flag_fullsd){
 
   # Check result structure
   check.result(result)
@@ -212,7 +212,7 @@ frailty_sd.AdPaik <- function (result, flag_fullsd = TRUE){
 #' - Considering only the time-dependent spread of the clusters/groups/centre: \eqn{sd(Z_{jk}) = \mu_2 * \gamma_k}.
 #' In this case, the flag_fullsd should be FALSE.
 #'
-#' - Considering both the time-dependent and constant spread of the clusters: \eqn{sd(Z_{jk}) = \mu_1 * \nu \mu_2 * \gamma_k}.
+#' - Considering both the time-dependent and constant spread of the clusters: \eqn{sd(Z_{jk}) = \mu_1 * \nu + \mu_2 * \gamma_k}.
 #' The new added term only moves upward the other case and the flag_fullsd should be TRUE.
 #'
 #' The final case only depends on what we want to observe.
@@ -222,7 +222,7 @@ frailty_sd.AdPaik <- function (result, flag_fullsd = TRUE){
 #' @param flag_fullsd Logical value. Do we want to compute the full frailty standard deviation? If so, the flag must be TRUE,
 #' otherwise, FALSE.
 #'
-#' @return S3 class object 'FrailtyDispersion' containing both two numerical vectors of length equal to the numbero of intervals of the time-domain:
+#' @return S3 class object 'FrailtyDispersion' containing both two numerical vectors of length equal to the number of intervals of the time-domain:
 #' - FrailtyVariance
 #' - FrailtyStandardDevation
 #'
@@ -250,21 +250,9 @@ frailty_sd.AdPaik <- function (result, flag_fullsd = TRUE){
 
 frailty_sd <- function(result, flag_fullsd = TRUE){
   if(inherits(result, "AdPaik"))
-    frailty_sd.AdPaik(result, flag_fullsd = TRUE)
-#   else if(class(result) == "PowPar")
-#     frailty_sd.PowPar(result$OptimalParameters, result$TimeDomain, result$NRegressors,
-#                       result$CategoriesRangeMin, result$CategoriesRangeMax)
-#   else if(class(result) == "StocTimeDep")
-#     frailty_sd.StocTimeDep(result$OptimalParameters, result$TimeDomain, result$NRegressors,
-#                            result$CategoriesRangeMin, result$CategoriesRangeMax)
+    frailty_sd.AdPaik(result, flag_fullsd)
 }
 
-# #' @title Function for computing frailty standard deviation and Variance 
-# #' 
-# #' @description According to the model it has been called, 
-# #' this function inspects the class output and then call the proper summary function.
-# #'
-# #' @result Output of the frailty_sd call. The result has its own class, associated to the called model.
 #-------------------------------------------------------------------------------
 
 

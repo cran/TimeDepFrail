@@ -16,7 +16,8 @@
 #'
 #' Several quantities are estimated at the end of the optimization phase:
 #' - parameters, their standard error and confidence interval;
-#' - frailty standard deviation (and frailty variance);
+#' - baseline hazard;
+#' - frailty dispersion (standard deviation and variance);
 #' - posterior frailty estimates, their variance and confidence interval;
 #' - Akaike Information Criterion (AIC).
 #'
@@ -52,8 +53,8 @@
 #' @param time_axis Temporal domain
 #' @param categories_range_min Vector containing the minimum value assumable by each parameter category.
 #' @param categories_range_max Vector containing the maximum value assumable by each parameter category.
-#' @param flag_fullsd If TRUE, the full frailty standard deviation is computed, otherwise the partial one that keeps into
-#' account only the time-dependent component.
+#' @param flag_fullsd Logical. If TRUE, the full frailty standard deviation is computed, otherwise the partial one that keeps into
+#' account only the time-dependent component. Defaults to `TRUE`.
 #' @param n_extrarun Total number of runs (iterations) are obtained summing to the number of parameters and n_extrarun.
 #' @param tol_ll Tolerance on the log-likelihood value.
 #' @param tol_optimize Internal tolerance for the one-dimensional optimization through 'optimize' R function.
@@ -63,6 +64,7 @@
 #' oscillate.
 #' This argument is composed of two elements: TRUE/FALSE if we want or not to print the previous values and how many values we
 #' want to print on the console. Default is (TRUE, 3), so that only the previous 3 values of the log-likelihood are printed.
+#' @param level A numeric value representing the confidence level for the optimal parameters (default is 0.95 for 95% confidence).
 #' @param verbose Logical. If `TRUE`, detailed progress messages will be printed to the console. Defaults to `FALSE`.
 #'
 #' @return S3 object of class 'AdPaik', composed of several elements. See Details.
@@ -76,24 +78,25 @@
 #' - NRegressors: number of regressors (R)
 #' - ClusterVariable: name of the variable with respect to which the individuals can be grouped.
 #' - NClusters: number of clusters/centres (also indicated with N).
-#' - NIntervals: number of intervals of the time-domain, also called with L. It corresponds to the length of the time-domain minus 1.
+#' - NIntervals: number of intervals of the time-domain, also called with L. 
 #' - NParameters: number of parameters of the model. It can be computed as: \eqn{n_p = 2L + R + 2}.
 #' - ParametersCategories: Numerical vector of length 5, containing the numerosity of each parameter category.
-#' - ParametersRangeMin: Numerical vector of length \eqn{n_p}, giving the minimum range of each parameter.
-#' - ParametersRangeMax: Numerical vector of length \eqn{n_p}, giving the maximum range of each parameter.
+#' - ParametersRange: S3 object of class 'ParametersRange', containing ParametersRangeMin and ParametersRangeMax, two numerical vectors of length \eqn{n_p}, giving the minimum and the maximum range of each parameter, respectively.
 #' - Loglikelihood: value of the maximized log-likelihood function, at the optimal estimated parameters.
 #' - AIC: 'Akaike Information Criterion': it can be computed as \eqn{AIC = 2n_p - 2ll_{optimal}}.
-#' It gives an idea of the loss of information related to the model fitting and output.
-#' The smaller it is, the less loss of information and the better model accuracy.
-#' - Status: Logical value. Does the model reach convergence? If so, the variable is TRUE, otherwise FALSE.
+#' It quantifies the loss of information related to the model fitting and output.
+#' The smaller, the less the loss of information and the better the model accuracy.
+#' - Status: Logical value. TRUE if the model reaches convergence, FALSE otherwise.
 #' - NRun: Number of runs necessary to reach convergence. If the model does not reach convergence, such number is equal to the maximum number
 #' of imposed runs.
-#' - OptimalParameters: numerical vector of length \eqn{n_p}, containing the optimal estimated parameters or, in other words, the parameters
-#' that maximizes the log-likelihood function.
+#' - OptimalParameters: numerical vector of length \eqn{n_p}, containing the optimal estimated parameters (the parameters
+#' that maximize the log-likelihood function).
 #' - StandardErrorParameters: numerical vector of length \eqn{n_p}, corresponding to the standard error of each estimated parameters.
-#' - ParametersCI: S3 object of class 'ParametersCI', composed of two numerical vector of length equal to \eqn{n_p}: the left and right confidence
-#' interval of each estimated parameter.
-#' - FrailtyStandardDeviation: numerical vector of length equal to L (i.e. number of intervals of the time-domain), reporting the standard deviation
+#' - ParametersCI: S3 object of class 'ParametersCI', composed of two numerical vector of length equal to \eqn{n_p}: the left and right 95\% confidence
+#' interval of each estimated parameter of given level.
+#' - BaselineHazard: numerical vector of length equal to L, containing the baseline hazard step-function.
+#' - FrailtyDispersion:  S3 object of class 'FrailtyDispersion', containing two numerical vectors of length equal to L with the standard deviation and the variance of the frailty.
+#' numerical vector of length equal to L (i.e. number of intervals of the time-domain), reporting the standard deviation
 #' of the frailty.
 #' - PosteriorFrailtyEstimates: S3 object of class 'PFE.AdPaik'. See details.
 #' - PosteriorFrailtyVariance: S3 object of class 'PFV.AdPaik'. See details.
@@ -145,6 +148,7 @@ AdPaikModel <- function(formula, data, time_axis,
                         flag_fullsd = TRUE,
                         n_extrarun = 60, tol_ll = 1e-6, tol_optimize = 1e-6, h_dd = 1e-3,
                         print_previous_ll_values = c(TRUE, 3),
+                        level = 0.95,
                         verbose = FALSE){
   
   if (verbose) message("Adapted Paik et al.'s Model:")
@@ -359,7 +363,7 @@ AdPaikModel <- function(formula, data, time_axis,
   
   # Compute parameters confidence interval
   if (verbose) message(paste("Compute parameters confidence interval"))
-  params_CI <- params_CI(optimal_params, params_se)
+  params_CI <- params_CI(optimal_params, params_se, level)
   
   # Compute baseline hazard step-function
   if (verbose) message(paste("Compute baseline hazard step function"))
@@ -378,7 +382,7 @@ AdPaikModel <- function(formula, data, time_axis,
   
   # Compute posterior frailty estimates confidence interval
   if (verbose) message(paste("Compute posterior frailty estimates confidence interval"))
-  post_frailty_CI <- post_frailty_CI.AdPaik(post_frailty_est, post_frailty_var, n_centres, n_intervals)
+  post_frailty_CI <- post_frailty_CI.AdPaik(post_frailty_est, post_frailty_var, n_centres, n_intervals, level)
   
   # Akaike Information Criterium
   AIC = 2 * n_params - 2 * optimal_loglikelihood
@@ -780,7 +784,7 @@ ll_AdPaik_centre_eval <- function(params, dataset, dropout_matrix, e_matrix){
 #' @param index_param_to_vary Index of the parameter, in the parameter vector, with respect to which the log-likelihood function
 #' is maximized in a one-dimensional way. The index s provided to identify the parameter under consideration inside the vector, avoiding
 #' providing its name or value.
-#' @param flag_optimal_params Are the other parameters extracted from the optimal vector of parameters? If so, the flag should be equal to TRUE
+#' @param flag_optimal_params Are the other parameters extracted from the optimal vector of parameters? If so, the flag should be equal to TRUE.
 #' Otherwise, the flag is equal to FALSE.
 #' @param optimal_params Vector of optimal parameters, determined through an entire multi-dimensional maximization
 #' of the log-likelihood function. The default value (NULL) indicates that no vector is provided
@@ -821,21 +825,32 @@ ll_AdPaik_centre_eval <- function(params, dataset, dropout_matrix, e_matrix){
 #' formula <- time_to_event ~ Gender + CFUP + cluster(group)
 #' time_axis <- c(1.0, 1.4, 1.8, 2.3, 3.1, 3.8, 4.3, 5.0, 5.5, 5.8, 6.0)
 #' eps <- 1e-10
+#' \donttest{
+#' # Identify a parameter existence range
 #' categories_range_min <- c(-8, -2, eps, eps, eps)
-#' categories_range_max <- c(-eps, 0, 1 - eps, 1, 10)
-#'
-#' # Choose the parameter with respect to which you want to study the \
-#' # log-likelihood function and provide its position in the parameter vector \
-#' # for identifying a parameter existence range
-#' 
+#' categories_range_max <- c(-eps, 0.5, 1 - eps, 1, 10)
 #' index_param_to_vary <- 1
+#' analysis_1D_opt <- AdPaik_1D(formula, data_dropout,
+#'                              time_axis, index_param_to_vary, 
+#'                              flag_optimal_params = FALSE, 
+#'                              optimal_params = NULL,
+#'                              flag_plot = TRUE,
+#'                              categories_range_min, categories_range_max, 
+#'                              n_iter = 5)
+#' 
 #'
-#' # Call the main model without providing optimal parameter
-#' result <- AdPaik_1D(formula, data_dropout, time_axis,
-#'                     index_param_to_vary, FALSE, NULL,
-#'                     categories_range_min, categories_range_max, n_iter = 5)
-#'
-#' # or for studying the log-likelihood behaviour.
+#' # or Study the log-likelihood behaviour
+#' categories_range_min <- c(-8, -2, eps, eps, eps)
+#' categories_range_max <- c(-eps, 0.4, 1 - eps, 1, 10)
+#' index_param_to_vary <- 14
+#' # Call the main model
+#' result <- AdPaikModel(formula, data_dropout, time_axis,
+#'                       categories_range_min, categories_range_max, TRUE)
+#' analysis_1D_opt <- AdPaik_1D(formula, data_dropout, time_axis,
+#'                              index_param_to_vary, flag_optimal_params = TRUE, 
+#'                              flag_plot = TRUE, optimal_params = result$OptimalParameters,
+#'                              categories_range_min, categories_range_max, n_iter = 1)
+#' }
 
 
 AdPaik_1D <- function(formula, data, time_axis,
