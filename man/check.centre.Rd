@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.centre}
 \alias{check.centre}
-\title{Check correctness for the cluster variable}
+\title{Check Correctness for the Cluster Variable}
 \usage{
 check.centre(centre)
 }
@@ -11,9 +11,10 @@ check.centre(centre)
 membership.}
 }
 \value{
-An error if any condition is not satisfied
+An error if any condition is not satisfied.
 }
 \description{
 The function controls that the provided cluster variable is a vector, with at least two levels. Indeed, it is not possible to
 apply the Time-Dependent Shared Frailty Cox Model with no clusters.
 }
+\keyword{internal}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/AdPaikModel.R
 \name{ll_AdPaik_eval}
 \alias{ll_AdPaik_eval}
-\title{Evaluation of model log-likelihood}
+\title{Evaluation of Model log-Likelihood}
 \usage{
 ll_AdPaik_eval(params, dataset, centre, time_axis, dropout_matrix, e_matrix)
 }
@@ -35,3 +35,4 @@ The function divides the individuals according to their group/cluster membership
 through another implemented function, but using all and only the individuals belonging to that group.
 Then the results are summed together to return the overall log-likelihood value.
 }
+\keyword{internal}

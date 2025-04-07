@@ -2,7 +2,7 @@
 % Please edit documentation in R/AdPaikModel.R
 \name{ll_AdPaik_centre_1D}
 \alias{ll_AdPaik_centre_1D}
-\title{One-dimensional group log-likelihood function.}
+\title{One-Dimensional Group log-Likelihood Function}
 \usage{
 ll_AdPaik_centre_1D(
   param_onedim,
@@ -38,3 +38,4 @@ This function simply implements the group log-likelihood function, following the
 It is internally used by @ll_AdPaik_1D and, therefore, it requires as first and second argument the parameter according to which the
 global log-likelihood is one-dimensionally optimized and its position inside the vector of parameters.
 }
+\keyword{internal}

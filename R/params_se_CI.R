@@ -1,5 +1,5 @@
 #' @title
-#' Standard error of the parameters
+#' Standard Error of the Parameters
 #'
 #' @description
 #' Function for computing the standard error of each optimal parameter, estimated through the
@@ -32,9 +32,11 @@
 #' @param h_dd Discretization step for the numerical approximation of the second derivative fo the loglikelihood function.
 #'
 #' @return Vector of parameter standard error, of length equal to the number of model parameters.
+#' 
+#' @keywords internal
 
-params_se.AdPaik <- function(optimal_params, params_range_min, params_range_max,
-                     dataset, centre, time_axis, dropout_matrix, e_matrix, h_dd){
+params_se <- function(optimal_params, params_range_min, params_range_max,
+                      dataset, centre, time_axis, dropout_matrix, e_matrix, h_dd){
   
   # Extract information from input variables
   n_params <- length(optimal_params)
@@ -93,7 +95,7 @@ params_se.AdPaik <- function(optimal_params, params_range_min, params_range_max,
 
 #-------------------------------------------------------------------------------
 #' @title
-#' Confidence interval for the optimal estimated parameters
+#' Confidence Interval for the Optimal Estimated Parameters
 #'
 #' @description
 #' The function provides the confidence interval for each estimated parameter, using the standard error
@@ -107,6 +109,8 @@ params_se.AdPaik <- function(optimal_params, params_range_min, params_range_max,
 #' @return A S3  object of class 'ParametersCI', composed of two numerical vector of length equal to the number of model parameters:
 #' - ParamsCI_left: left confidence interval for each parameter
 #' - ParamsCI_right: right confidence interval for each parameter
+#' 
+#' @keywords internal
 
 params_CI <- function(optimal_params, se_params, level){
   

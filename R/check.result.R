@@ -1,40 +1,7 @@
-#-------------------------------------------------------------------------------
-#' @title
-#' Internal function to check the structure of the model output
-#'
-#' @description
-#' This internal function checks if the input `result` object belongs to one of the 
-#' expected S3 classes ('AdPaik', 'PowPar', or 'StocTimeDep') and calls the 
-#' appropriate checking function based on the class.
-#'
-#' @param result S3 object. Expected to be of class 'AdPaik', 'PowPar', or 'StocTimeDep'.
-#'
-#' @details
-#' This function is internal and dispatches the appropriate structure-checking function 
-#' based on the class of the input. Currently, it supports 'AdPaik' class. The structure-checking 
-#' functions for 'PowPar' and 'StocTimeDep' are placeholders and should be implemented if needed.
-#'
-#' @return Throws an error if the `result` object does not belong to one of the expected classes, 
-#' or if the object’s structure is incorrect.
-#'
-#' @keywords internal
-
-check.result <- function(result){
-  # Check the class of result
-  if(!inherits(result, 'AdPaik')) # & (!inherits(result, 'PowPar')) & (!inherits(result, 'StocTimeDep')))
-    stop("Wrong S3 class object for input 'result' argument.")
-  
-  if(inherits(result, 'AdPaik'))
-    check.result.AdPaik(result)
-  #else if(inherits(result, 'PowPar'))
-  #  check.result.PowPar(result)
-  #else
-  #  check.result.StocTimeDep(result)
-}
 
 #-------------------------------------------------------------------------------
 #' @title
-#' Check structure of the 'AdPaikModel' output
+#' Check Structure of the 'AdPaikModel' Output
 #'
 #' @description
 #' The function controls that the structure of the input variable is coherent with the one returned by the
@@ -42,7 +9,7 @@ check.result <- function(result){
 #'
 #' @param result S3 object of class 'AdPaik', composed of several elements. See details.
 #'
-#' @details The output of the model call 'AdPaikModel(...)' is a S3 object of class 'AdPaik', composed of 18 quantities:
+#' @details The output of the model call 'AdPaikModel(...)' is a S3 object of class 'AdPaik', composed of:
 #' - formula: formula object provided in input by the user and specifying the relationship between the time-to-event, the covariates of
 #' the dataset (regressors) and the cluster variable.
 #' - Regressors: categorical vector of length R, with the name of the regressors.
@@ -51,6 +18,8 @@ check.result <- function(result){
 #' - NRegressors: number of regressors (R)
 #' - ClusterVariable: name of the variable with respect to which the individuals can be grouped.
 #' - NClusters: number of clusters/groups/centres
+#' - ClusterCodes
+#' - TimeDomain
 #' - NIntervals: number of intervals of the time-domain, also called with L. It corresponds to the length of the time-domain minus 1.
 #' - NParameters: number of parameters of the model. It can be computed as: \eqn{n_p = 2L + R + 2}.
 #' - ParametersCategories: Numerical vector of length 5, containing the numerosity of each parameter category.
@@ -72,7 +41,6 @@ check.result <- function(result){
 #' of the frailty.
 #' - PosteriorFrailtyEstimates: S3 object of class 'PFE.AdPaik'. See details.
 #' - PosteriorFrailtyVariance: S3 object of class 'PFV.AdPaik'. See details.
-#' - PosteriorFrailtyCI: S3 object of class 'PFCI.AdPaik'. See details.
 #'
 #' @details
 #' The object of class 'PFE.AdPaik' contains the Posterior Frailty Estimates computed with the procedure indicated in the reference paper and
@@ -88,25 +56,22 @@ check.result <- function(result){
 #' - 'epsVar': posterior frailty variance for \eqn{\epsilon_{jk}, \forall j,k}. Matrix of dimension (N, L).
 #' - 'ZVar': posterior frailty variance for \eqn{Z_{jk} = \alpha_j + \epsilon_{jk}, \forall j,k}. Matrix of dimension (N, L).
 #'
-#' @details
-#' The object of class 'PFCI.AdPaik' contains the Posterior Frailty Confidence Interval and it is composed of two elements:
-#' - left confidence interval for the estimated \eqn{\hat{Z}_{jk}, \forall j,k}. Matrix of dimension (N, L).
-#' - right confidence interval for the estimated \eqn{\hat{Z}_{jk}, \forall j,k}. Matrix of dimension (N, L).
-#'
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
-check.result.AdPaik <- function(result){
+check.result <- function(result){
   # Save the names of the list elements
-  names_list.AdPaik <- c("formula", "Regressors", "NRegressors", "ClusterVariable", "NClusters",
-                         "TimeDomain", "NIntervals",
+  names_list.AdPaik <- c("formula", "dataset", "Regressors", "NRegressors", "ClusterVariable", "NClusters",
+                         "ClusterCodes", "TimeDomain", "NIntervals", "NObservations",
                          "NParameters", "ParametersCategories",
                          "ParametersRange",
                          "Loglikelihood", "AIC", "Status", "NRun",
                          "OptimalParameters", "StandardErrorParameters",
                          "ParametersCI", "BaselineHazard",
                          "FrailtyDispersion", "PosteriorFrailtyEstimates",
-                         "PosteriorFrailtyVariance","PosteriorFrailtyCI")
+                         "PosteriorFrailtyVariance")
   
   # Other than a class, it is a list
   if(! is.list(result))
@@ -181,6 +146,5 @@ check.result.AdPaik <- function(result){
   
   check.structure_post_frailty_est(result$PosteriorFrailtyEstimates, result$NIntervals, result$NClusters)
   check.structure_post_frailty_var(result$PosteriorFrailtyVariance, result$NIntervals, result$NClusters)
-  check.structure_post_frailty_CI(result$PosteriorFrailtyCI, result$NIntervals, result$NClusters)
 }
 

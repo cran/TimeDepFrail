@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.poslegend}
 \alias{check.poslegend}
-\title{Check correctness of legend position}
+\title{Check Correctness of Legend Position}
 \usage{
 check.poslegend(pos_legend)
 }
@@ -16,3 +16,4 @@ An error if any condition is not satisfied.
 The function controls that the provided position of the legend is correct. It can be either
 a vector of length 2, giving the x and y coordinates, or a string, giving the exact position among different possibilities.
 }
+\keyword{internal}

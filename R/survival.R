@@ -6,7 +6,6 @@
 #' given the estimated coefficients and frailty effects.
 #'
 #' @param result S3 object of class 'AdPaik' containing model results.
-#' @param data Data frame containing covariates used in the model.
 #'
 #' @return A dataset where each row corresponds to an individual unit in the dataset, 
 #' and the columns represent the survival function values over time interval, 
@@ -28,15 +27,17 @@
 #' \donttest{
 #' result <- AdPaikModel(formula, data_dropout, time_axis, categories_range_min, categories_range_max)
 #'
-#' survival_df = survival(result, data_dropout)
+#' survivalAdPaik(result)
 #'  }  
-survival <- function(result, data) {
+survivalAdPaik <- function(result) {
   # Check for valid input
   if (!inherits(result, "AdPaik")) stop("'result' must be of class 'AdPaik'.")
+  
+  data = data.frame(result$dataset)
   if (!is.data.frame(data)) stop("'data' must be a data frame.")
   
   # Extract beta coefficients and formula
-  beta <- coef.AdPaik(result)$beta  # Extract coefficients
+  beta <- coef.AdPaik(result)  # Extract coefficients
   # names(coef(result)$beta) # Extract names
   full_formula <- result$formula  # Extract the full formula
   
@@ -66,7 +67,7 @@ survival <- function(result, data) {
   exp_linear_predictor <- exp(c(linear_predictor))
   
   # Compute the the inner terms of the integral
-  exp_phi <- exp(c(coef.AdPaik(result)$phi))  # Baseline hazard parameters
+  exp_phi <- exp(result$OptimalParameters[1:result$NIntervals])  # Baseline hazard parameters
   time_diffs <- diff(result$TimeDomain)  # Differences in the time domain
   posterior_frailty <- result$PosteriorFrailtyEstimates$Z  # Posterior frailty estimates
   inner_part <- t(t(posterior_frailty) * (exp_phi * time_diffs))  # Scale by hazard params
@@ -104,10 +105,6 @@ survival <- function(result, data) {
 #' estimated coefficients and frailty effects, for each unit in each time interval (represented by its mid point). 
 #'
 #' @param result S3 object of class 'AdPaik' containing model results.
-#' @param survival_df The dataframe returned by 'survival' function, 
-#' where each row corresponds to the survival function values 
-#' over the time intervals for each individual in the dataset. 
-#' The first column represents the cluster to which the individual belongs.
 #' @param lwd The line width of the plot. Default is 1.
 #' @param xlim A numeric vector specifying the range for the x-axis (intervals). Default is min-max value of the time domain.
 #' @param ylim A numeric vector specifying the range for the y-axis (intervals). Default is the range 0-1.
@@ -134,13 +131,14 @@ survival <- function(result, data) {
 #' \donttest{
 #' result <- AdPaikModel(formula, data_dropout, time_axis, categories_range_min, categories_range_max)
 #'
-#' survival_df = survival(result, data_dropout)
-#' plot_survival(result, survival_df)
+#' plot_survivalAdPaik(result)
 #'  } 
-plot_survival <- function(result, survival_df, lwd = 1, 
+plot_survivalAdPaik <- function(result, lwd = 1, 
                           xlim = c(min(result$TimeDomain), max(result$TimeDomain)), ylim = c(0,1),
                           xlab = "Time", ylab = "Values", main = "Conditional Survival",
                           cex = 0.2, cexlegend = 0.8){
+  
+  survival_df = survivalAdPaik(result)
   
   time = result$TimeDomain
   

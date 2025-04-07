@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.range_params}
 \alias{check.range_params}
-\title{Check correctness of input parameters}
+\title{Check Correctness of Input Parameters}
 \usage{
 check.range_params(optimal_params, params_range_min, params_range_max)
 }
@@ -23,3 +23,4 @@ An error if any condition is not satisfied.
 The function controls that the input parameter vector have a length equal to the theoretical one required by the model and that each parameter
 properly belongs to its range.
 }
+\keyword{internal}

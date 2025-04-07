@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.dataset}
 \alias{check.dataset}
-\title{Check presence of null or nan element value in the dataset}
+\title{Check Presence of NULL or NaN Element Value in the Dataset}
 \usage{
 check.dataset(data)
 }
@@ -15,3 +15,4 @@ An error if any condition is not satisfied.
 \description{
 The method controls that the dataset does not contain 'NULL', 'null', 'NaN' or 'nan' value.
 }
+\keyword{internal}

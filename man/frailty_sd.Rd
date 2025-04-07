@@ -2,39 +2,35 @@
 % Please edit documentation in R/frailty_sd.R
 \name{frailty_sd}
 \alias{frailty_sd}
-\title{Frailty standard deviation and Variance for the 'Adapted Paik et al.'s Model'}
+\title{Frailty Standard Deviation and Variance for the 'Adapted Paik et Al.'s Model'}
 \usage{
-frailty_sd(result, flag_fullsd = TRUE)
+frailty_sd(object, flag_full = TRUE, flag_variance = FALSE)
 }
 \arguments{
-\item{result}{S3 object of class 'AdPaik' returned by the main model output, that contains all the information for the computation
+\item{object}{S3 object of class 'AdPaik' returned by the main model output, that contains all the information for the computation
 of the frailty standard deviation.}
 
-\item{flag_fullsd}{Logical value. Do we want to compute the full frailty standard deviation? If so, the flag must be TRUE,
-otherwise, FALSE.}
+\item{flag_full}{A boolean flag indicating whether to get the full standard deviation (\code{TRUE}) or only the time-dependent component (\code{FALSE}). Default to \code{TRUE}.}
+
+\item{flag_variance}{A boolean flag indicating whether to get the frailty variance (\code{TRUE}) or the frailty standard deviation (\code{FALSE}). Default to \code{FALSE}.}
 }
 \value{
-S3 class object 'FrailtyDispersion' containing both two numerical vectors of length equal to the number of intervals of the time-domain:
-\itemize{
-\item FrailtyVariance
-\item FrailtyStandardDevation
-}
+Numerical vector of length equal to the number of intervals of the time-domain,
+with the value of the frailty standard deviation or variance (either full or only the time-dependent component).
 }
 \description{
 The function computes both the standard deviation and the variance of the time-dependent
 frailty of the 'Adapted Paik et al.'s Model'.
 
 Recalling the frailty structure \eqn{Z_{jk} = \alpha_j + \epsilon_{jk}} as being composed by a constant group-dependent term
-(\eqn{\alpha_j}) and a time and group dependent term (\eqn{\epsilon_{jk}}), the frailty standard deviation (and variance)
+(\eqn{\alpha_j}) and a time and group dependent term (\eqn{\epsilon_{jk}}), the frailty variance (and standard deviation)
 can be computed in two different way:
 \itemize{
-\item Considering only the time-dependent spread of the clusters/groups/centre: \eqn{sd(Z_{jk}) = \mu_2 * \gamma_k}.
-In this case, the flag_fullsd should be FALSE.
-\item Considering both the time-dependent and constant spread of the clusters: \eqn{sd(Z_{jk}) = \mu_1 * \nu + \mu_2 * \gamma_k}.
-The new added term only moves upward the other case and the flag_fullsd should be TRUE.
+\item Considering only the time-dependent spread of the clusters/groups/centre: \eqn{var(Z_{jk}) = \mu_2 * \gamma_k}.
+In this case, the flag_full should be FALSE and flag_variance should be TRUE.
+\item Considering both the time-dependent and constant spread of the clusters: \eqn{var(Z_{jk}) = \mu_1 * \nu + \mu_2 * \gamma_k}.
+The new added term only moves upward the other case and the flag_full should be TRUE and flag_variance should be TRUE.
 }
-
-The final case only depends on what we want to observe.
 }
 \examples{
 # Consider the 'Academic Dropout dataset'
@@ -47,12 +43,11 @@ eps <- 1e-10
 categories_range_min <- c(-8, -2, eps, eps, eps)
 categories_range_max <- c(-eps, 0, 1 - eps, 1, 10)
 
-# Call the main model
 \donttest{
+# Call the main model
 result <- AdPaikModel(formula, data_dropout, time_axis,
-                      categories_range_min, categories_range_max, TRUE)
+                      categories_range_min, categories_range_max)
 
-frailty_sd(result, TRUE)
-frailty_sd(result, FALSE)
+frailty_sd(result)
 }
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/AdPaikModel.R
 \name{ll_AdPaik_centre_eval}
 \alias{ll_AdPaik_centre_eval}
-\title{Evaluation of model group log-likelihood}
+\title{Evaluation of Model Group log-Likelihood}
 \usage{
 ll_AdPaik_centre_eval(params, dataset, dropout_matrix, e_matrix)
 }
@@ -26,3 +26,4 @@ Evaluation of model group log-likelihood at the provided parameter vector and da
 This function is internally called by 'll_AdPaik_eval' to evaluate the log-likelihood function, considering
 all and only the individuals belonging to a group.
 }
+\keyword{internal}

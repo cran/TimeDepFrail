@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.structure_paramsCI}
 \alias{check.structure_paramsCI}
-\title{Check structure for the Parameters Confidence Interval}
+\title{Check Structure for the Parameters Confidence Interval}
 \usage{
 check.structure_paramsCI(parametersCI)
 }
@@ -19,3 +19,4 @@ An error if any condition is not satisfied.
 \description{
 The function controls that the structure of the Parameters Confidence Intervals coincides with the theoretical one.
 }
+\keyword{internal}

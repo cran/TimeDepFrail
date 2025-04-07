@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.post_frailty_centre}
 \alias{check.post_frailty_centre}
-\title{Check numerosity of posterior frailty estimates}
+\title{Check Numerosity of Posterior Frailty Estimates}
 \usage{
 check.post_frailty_centre(post_frailty_est, centre_codes)
 }
@@ -18,3 +18,4 @@ An error if any condition is not satisfied.
 \description{
 The function controls that a time-dependent posterior frailty estimate is computed for each centre
 }
+\keyword{internal}

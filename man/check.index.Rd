@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.index}
 \alias{check.index}
-\title{Check existence of provided input index}
+\title{Check Existence of Provided Input Index}
 \usage{
 check.index(index, n_params)
 }
@@ -19,3 +19,4 @@ An error if any condition is not satisfied.
 The method controls that the provided input index exists: it cannot be greater than the maximum number
 of parameters of the current model.
 }
+\keyword{internal}

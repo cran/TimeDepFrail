@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.structure_post_frailty_est}
 \alias{check.structure_post_frailty_est}
-\title{Check structure of Posterior Frailty Estimates}
+\title{Check Structure of Posterior Frailty Estimates}
 \usage{
 check.structure_post_frailty_est(post_frailty_est, n_intervals, n_centres)
 }
@@ -24,3 +24,4 @@ An error if any condition is not satisfied.
 \description{
 The function controls that the structure of the 'Posterior Frailty Estimates' coincides with the theoretical one.
 }
+\keyword{internal}

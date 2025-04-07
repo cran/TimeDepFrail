@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.pchtype_colorbg}
 \alias{check.pchtype_colorbg}
-\title{Check correctness of plot variables pch and color}
+\title{Check Correctness of Plot Variables Pch and Color}
 \usage{
 check.pchtype_colorbg(centre_codes, pch_type, color_bg)
 }
@@ -24,3 +24,4 @@ they have the same dimension of the number of clusters in the dataset and they h
 These variables are used for the plot of the posterio frailty estimates: the estimates for each faculty are plotted through a symbol, having
 color and shape indicated by the variables (for the k-th faculty, consider the k-th element of both vectors).
 }
+\keyword{internal}

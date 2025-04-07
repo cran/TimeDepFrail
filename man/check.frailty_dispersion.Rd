@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.frailty_dispersion}
 \alias{check.frailty_dispersion}
-\title{Check correctness of frailty standard deviation}
+\title{Check Correctness of Frailty Standard Deviation}
 \usage{
 check.frailty_dispersion(frailty_dispersion, n_intervals)
 }
@@ -18,3 +18,4 @@ An error if any condition is not satisfied.
 The function controls that the frailty standard deviation vector has a length equal to the number of inyervals of the time domain and
 that its elements are non-negative.
 }
+\keyword{internal}

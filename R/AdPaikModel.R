@@ -1,25 +1,23 @@
-#' @title Adapted Paik et al.'s Model: Time-Dependent Shared Frailty Cox Model
+#' @title
+#' Adapted Paik et Al.'s Model: Time-Dependent Shared Frailty Cox Model
 #'
 #' @description
-#' Function for applying the 'Adapted Paik et al.'s Model', an innovative Cox Model with time-dependent frailty,
+#' Function for applying the 'Adapted Paik et al.'s Model', a Cox Model with time-dependent frailty,
 #' shared by individuals belonging to the same group/cluster.
 #'
-#' To generate time-dependence, the temporal domain must be divided into a certain number
-#' of intervals. For more information about the time-domain, its relationship with the follow-up and its internal
-#' subdivision refer to Details.
-#'
-#' The model log-likelihood function depends on a certain number of parameters and it is maximized with respect to all of them,
-#' using a reinterpretation of the 'Powell's method in multidimension', that is a multi-dimensional optimization method based on
+#' To generate time-dependence, the temporal domain is divided into a certain number
+#' of intervals. The model log-likelihood function depends on a certain number of parameters and 
+#' is maximized with respect to all of them,
+#' using a reinterpretation of the 'Powell's method in multidimension', 
+#' that is a multi-dimensional optimization method based on
 #' repeated one-dimensional optimization of the log-likelihood function (with respect to one parameter at the time).
 #' In this context, the one-dimensional optimization is performed through the 'optimize' R function.
 #' For more information about the unknown model parameters, their type and numerosity refer to Details.
 #'
-#' Several quantities are estimated at the end of the optimization phase:
-#' - parameters, their standard error and confidence interval;
-#' - baseline hazard;
-#' - frailty dispersion (standard deviation and variance);
-#' - posterior frailty estimates, their variance and confidence interval;
-#' - Akaike Information Criterion (AIC).
+#' Several quantities are estimated at the end of the optimization phase, such as
+#' optimal parameters, baseline hazard, frailty dispersion (standard deviation and variance),
+#' posterior frailty estimates, with their variance and confidence interval, 
+#' conditional survival function, Akaike Information Criterion (AIC), ...
 #'
 #' @details
 #' Two observation needs to made about the time-domain:
@@ -28,7 +26,7 @@
 #' with the time-instants in which the events begin to happen; conversely, the right boundary of the two must be the same.
 #' - The partition of the time domain into intervals can be made according to two selected criteria:
 #' (1) using an already existent partition of the follow-up
-#' (2) using the shape of the baseline hazard function as reference: divide the time-domain according to regions in
+#' (2) using the shape of the baseline hazard function for a time independent model as reference: divide the time-domain according to regions in
 #' which it has a peak or a plateau.
 #'
 #' @details
@@ -40,11 +38,11 @@
 #' Another model parameter is \eqn{\mu_2} and it is get imposing the constraint that \eqn{\mu_1 + \mu_2 = 1}.
 #' As it can be notice, some parameters can be grouped into the same category (regressors, baseline log-hazard and so on)
 #' and we can easily constraint them assigning each category both a minimum and maximum range.
-#' The category vector is structured as follows: (baseline log-hazard, regressors, \eqn{\mu_1}, \eqn{\nu}, \eqn{\gamma_k}) with dimension
+#' The vector is structured as follows: (baseline log-hazard, regressors, \eqn{\mu_1}, \eqn{\nu}, \eqn{\gamma_k}) with dimension
 #' (n_intervals, n_regressors, 1, 1, n_intervals).
 #'
 #'
-#' @param formula Formula object having on the left hand side the @time_to_event variable, that is the time-instant in which
+#' @param formula Formula object having on the left hand side the time-to-event variable, that is the time-instant in which
 #' the individual failed. On the right hand side, it has the regressors and the cluster variable.
 #' @param data Dataset in which all variables of the formula object must be found and contained.
 #' This dataset can also contain other variables, but they will not be considered.
@@ -53,32 +51,34 @@
 #' @param time_axis Temporal domain
 #' @param categories_range_min Vector containing the minimum value assumable by each parameter category.
 #' @param categories_range_max Vector containing the maximum value assumable by each parameter category.
-#' @param flag_fullsd Logical. If TRUE, the full frailty standard deviation is computed, otherwise the partial one that keeps into
-#' account only the time-dependent component. Defaults to `TRUE`.
 #' @param n_extrarun Total number of runs (iterations) are obtained summing to the number of parameters and n_extrarun.
 #' @param tol_ll Tolerance on the log-likelihood value.
 #' @param tol_optimize Internal tolerance for the one-dimensional optimization through 'optimize' R function.
 #' @param h_dd Discretization step used for the numerical approximation of the second derivative of the log-likelihood function.
+#' @param verbose Logical. If `TRUE`, detailed progress messages will be printed to the console. Defaults to `FALSE`.
 #' @param print_previous_ll_values If we want to print the previous values of the log-likelihood function. This can
 #' be useful for controlling that the optimization procedure is proceeding in a monotone way and it does not
 #' oscillate.
 #' This argument is composed of two elements: TRUE/FALSE if we want or not to print the previous values and how many values we
 #' want to print on the console. Default is (TRUE, 3), so that only the previous 3 values of the log-likelihood are printed.
-#' @param level A numeric value representing the confidence level for the optimal parameters (default is 0.95 for 95% confidence).
-#' @param verbose Logical. If `TRUE`, detailed progress messages will be printed to the console. Defaults to `FALSE`.
 #'
 #' @return S3 object of class 'AdPaik', composed of several elements. See Details.
+#' 
 #'
 #' @details The output of the model call 'AdPaikModel(...)' is a S3 object of class 'AdPaik', composed of the following quantities:
 #' - formula: formula object provided in input by the user and specifying the relationship between the time-to-event, the covariates of
 #' the dataset (regressors) and the cluster variable.
+#' - dataset: matrix of the dataset containing the regressors and the dummy variables of the categorical covariates.
 #' - Regressors: categorical vector of length R, with the name of the regressors.
 #' They could be different from the original covariates of the dataset in case of categorical covariates.
 #' Indeed, each categorical covariate with n levels needs to be transformed into (n-1) dummy variables and, therefore, (n-1) new regressors.
 #' - NRegressors: number of regressors (R)
 #' - ClusterVariable: name of the variable with respect to which the individuals can be grouped.
 #' - NClusters: number of clusters/centres (also indicated with N).
+#' - ClusterCodes: vector of length equal to the number of clusters, containing the codes of the clusters.
+#' - TimeDomain: vector of the time-domain partition.
 #' - NIntervals: number of intervals of the time-domain, also called with L. 
+#' - NObservations: number of observations of the dataset.
 #' - NParameters: number of parameters of the model. It can be computed as: \eqn{n_p = 2L + R + 2}.
 #' - ParametersCategories: Numerical vector of length 5, containing the numerosity of each parameter category.
 #' - ParametersRange: S3 object of class 'ParametersRange', containing ParametersRangeMin and ParametersRangeMax, two numerical vectors of length \eqn{n_p}, giving the minimum and the maximum range of each parameter, respectively.
@@ -98,31 +98,14 @@
 #' - FrailtyDispersion:  S3 object of class 'FrailtyDispersion', containing two numerical vectors of length equal to L with the standard deviation and the variance of the frailty.
 #' numerical vector of length equal to L (i.e. number of intervals of the time-domain), reporting the standard deviation
 #' of the frailty.
-#' - PosteriorFrailtyEstimates: S3 object of class 'PFE.AdPaik'. See details.
-#' - PosteriorFrailtyVariance: S3 object of class 'PFV.AdPaik'. See details.
-#' - PosteriorFrailtyCI: S3 object of class 'PFCI.AdPaik'. See details.
-#'
-#' @details
-#' The object of class 'PFE.AdPaik' contains the Posterior Frailty Estimates computed with the procedure indicated in the reference paper and
-#' it is composed of three elements:
-#' - 'alpha': posterior frailty estimates for \eqn{\alpha_j, \forall j}. It is a vector of length equal to the number of centres.
-#' - 'eps': posterior frailty estimates for \eqn{\epsilon_{jk}, \forall j,k}. Matrix of dimension (N, L).
-#' - 'Z': posterior frailty estimates for \eqn{Z_{jk} = \alpha_j + \epsilon_{jk}, \forall j,k}. Matrix of dimension (N, L).
-#'
-#' @details
-#' The object of class 'PFV.AdPaik' contains the Posterior Frailty Variances computed as indicated in the reference papaer and it
-#' is  composed of three elements:
-#' - 'alphaVar': posterior frailty variance for \eqn{\alpha_j, \forall j}. It is a vector of length equal to the number of centres.
-#' - 'epsVar': posterior frailty variance for \eqn{\epsilon_{jk}, \forall j,k}. Matrix of dimension (N, L).
-#' - 'ZVar': posterior frailty variance for \eqn{Z_{jk} = \alpha_j + \epsilon_{jk}, \forall j,k}. Matrix of dimension (N, L).
-#'
-#' @details
-#' The object of class 'PFCI.AdPaik' contains the Posterior Frailty Confidence Interval and it is composed of two elements:
-#' - left confidence interval for the estimated \eqn{\hat{Z}_{jk}, \forall j,k}. Matrix of dimension (N, L).
-#' - right confidence interval for the estimated \eqn{\hat{Z}_{jk}, \forall j,k}. Matrix of dimension (N, L).
-#'
-#' @source
-#' ...
+#' - PosteriorFrailtyEstimates: S3 object of class 'PFE.AdPaik'. The object of class 'PFE.AdPaik' contains the Posterior Frailty Estimates computed with the procedure indicated in the reference paper and it is composed of three elements:
+#'   - 'alpha': posterior frailty estimates for \eqn{\alpha_j, \forall j}. It is a vector of length equal to the number of centres.
+#'   - 'eps': posterior frailty estimates for \eqn{\epsilon_{jk}, \forall j,k}. Matrix of dimension (N, L).
+#'   - 'Z': posterior frailty estimates for \eqn{Z_{jk} = \alpha_j + \epsilon_{jk}, \forall j,k}. Matrix of dimension (N, L).
+#' - PosteriorFrailtyVariance: S3 object of class 'PFV.AdPaik'. The object of class 'PFV.AdPaik' contains the Posterior Frailty Variances computed as indicated in the reference papaer and it is  composed of three elements:
+#'   - 'alphaVar': posterior frailty variance for \eqn{\alpha_j, \forall j}. It is a vector of length equal to the number of centres.
+#'   - 'epsVar': posterior frailty variance for \eqn{\epsilon_{jk}, \forall j,k}. Matrix of dimension (N, L).
+#'   - 'ZVar': posterior frailty variance for \eqn{Z_{jk} = \alpha_j + \epsilon_{jk}, \forall j,k}. Matrix of dimension (N, L).
 #'
 #' @export
 #'
@@ -145,12 +128,9 @@
 
 AdPaikModel <- function(formula, data, time_axis,
                         categories_range_min, categories_range_max,
-                        flag_fullsd = TRUE,
                         n_extrarun = 60, tol_ll = 1e-6, tol_optimize = 1e-6, h_dd = 1e-3,
-                        print_previous_ll_values = c(TRUE, 3),
-                        level = 0.95,
-                        verbose = FALSE){
-  
+                        verbose = FALSE, print_previous_ll_values = c(TRUE, 3)){
+  level = 0.95
   if (verbose) message("Adapted Paik et al.'s Model:")
   
   # Check all input variables are provided
@@ -358,8 +338,8 @@ AdPaikModel <- function(formula, data, time_axis,
   
   # Compute the standard error from the Hessian matrix
   if (verbose) message(paste("Compute parameters standard error"))
-  params_se <- params_se.AdPaik(optimal_params, params_range_min, params_range_max,
-                                dataset, centre, time_axis, dropout_matrix, e_matrix, h_dd)
+  params_se <- params_se(optimal_params, params_range_min, params_range_max,
+                         dataset, centre, time_axis, dropout_matrix, e_matrix, h_dd)
   
   # Compute parameters confidence interval
   if (verbose) message(paste("Compute parameters confidence interval"))
@@ -367,34 +347,37 @@ AdPaikModel <- function(formula, data, time_axis,
   
   # Compute baseline hazard step-function
   if (verbose) message(paste("Compute baseline hazard step function"))
-  bas_hazard <- bas_hazard(optimal_params, time_axis)
+  bas_hazard <- bas_hazard_internal(optimal_params, time_axis)
   
   # Compute frailty standard deviation
   if (verbose) message(paste("Compute frailty standard deviation"))
-  frailty_dispersion <- frailty_Sd.AdPaik(optimal_params, time_axis, n_regressors,
-                                          categories_range_min, categories_range_max, TRUE)
+  frailty_dispersion <- frailty_Sd_internal(optimal_params, time_axis, n_regressors,
+                                            categories_range_min, categories_range_max, TRUE)
   
   # Compute posterior frailty estimates
   if (verbose) message(paste("Compute posterior frailty estimates"))
-  post_frailty_estimates <- post_frailty.AdPaik(optimal_params, dataset, time_to_event, centre, time_axis)
+  post_frailty_estimates <- post_frailty_internal(optimal_params, dataset, time_to_event, centre, time_axis)
   post_frailty_est <- post_frailty_estimates$PostFrailtyEst
   post_frailty_var <- post_frailty_estimates$PostFrailtyVar
   
   # Compute posterior frailty estimates confidence interval
-  if (verbose) message(paste("Compute posterior frailty estimates confidence interval"))
-  post_frailty_CI <- post_frailty_CI.AdPaik(post_frailty_est, post_frailty_var, n_centres, n_intervals, level)
+  # if (verbose) message(paste("Compute posterior frailty estimates confidence interval"))
+  # post_frailty_CI <- post_frailty_CI_internal(post_frailty_est, post_frailty_var, n_centres, n_intervals, level)
   
   # Akaike Information Criterium
   AIC = 2 * n_params - 2 * optimal_loglikelihood
   
   # Object to return
   return_list <- list("formula" = formula,
+                      "dataset" = data[, formula_variables, drop = FALSE],
                       "Regressors" = new_covariates,
                       "NRegressors" = n_regressors,
                       "ClusterVariable" = cluster_name,
                       "NClusters" = n_centres,
+                      "ClusterCodes" = centre_codes,
                       "TimeDomain" = time_axis,
                       "NIntervals" = n_intervals,
+                      "NObservations" = n_individuals,
                       "NParameters" = n_params,
                       "ParametersCategories" = params_categories,
                       "ParametersRange" = params_range,
@@ -408,8 +391,7 @@ AdPaikModel <- function(formula, data, time_axis,
                       "BaselineHazard" = bas_hazard,
                       "FrailtyDispersion" = frailty_dispersion,
                       "PosteriorFrailtyEstimates" = post_frailty_est,
-                      "PosteriorFrailtyVariance" = post_frailty_var,
-                      "PosteriorFrailtyCI" = post_frailty_CI)
+                      "PosteriorFrailtyVariance" = post_frailty_var)
   class(return_list) <- "AdPaik"
   
   # Return list of results
@@ -419,7 +401,7 @@ AdPaikModel <- function(formula, data, time_axis,
 
 #-------------------------------------------------------------------------------
 #' @title
-#' One-dimensional log-likelihood function to be optimized.
+#' One-Dimensional Log-Likelihood Function to be Optimized
 #'
 #' @description
 #' Model log-likelihood function to be optimized only with respect to a parameter. To correctly identify this parameter inside the model
@@ -453,6 +435,8 @@ AdPaikModel <- function(formula, data, time_axis,
 #' integral, performed through the function @param time_int_eval.
 #'
 #' @return Overall log-likelihood function
+#' 
+#' @keywords internal
 
 ll_AdPaik_1D <- function(x, index, params, dataset, centre,
                          time_axis, dropout_matrix, e_matrix){
@@ -491,7 +475,7 @@ ll_AdPaik_1D <- function(x, index, params, dataset, centre,
   return (ll_overall)
 }#-------------------------------------------------------------------------------
 #' @title
-#' One-dimensional group log-likelihood function.
+#' One-Dimensional Group log-Likelihood Function
 #'
 #' @description
 #' This function simply implements the group log-likelihood function, following the definition.
@@ -510,6 +494,8 @@ ll_AdPaik_1D <- function(x, index, params, dataset, centre,
 #' integral, performed through the function @param time_int_eval.
 #'
 #' @return Centre log-likelihood function.
+#' 
+#' @keywords internal
 
 
 ll_AdPaik_centre_1D <- function(param_onedim, index_param_onedim, params, dataset,
@@ -602,7 +588,7 @@ ll_AdPaik_centre_1D <- function(param_onedim, index_param_onedim, params, datase
 
 #-------------------------------------------------------------------------------
 #' @title
-#' Evaluation of model log-likelihood
+#' Evaluation of Model log-Likelihood
 #'
 #' @description
 #' Evaluation of the log-likelihood function at the provided parameter vector and data.
@@ -625,6 +611,8 @@ ll_AdPaik_centre_1D <- function(param_onedim, index_param_onedim, params, datase
 #' integral, performed through the function @time_int_eval.
 #'
 #' @return Overall log-likelihood function value at the provided parameters and data
+#'
+#' @keywords internal
 
 ll_AdPaik_eval <- function(params, dataset, centre, time_axis, dropout_matrix, e_matrix){
   
@@ -655,7 +643,7 @@ ll_AdPaik_eval <- function(params, dataset, centre, time_axis, dropout_matrix, e
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Evaluation of model group log-likelihood
+#' Evaluation of Model Group log-Likelihood
 #'
 #' @description
 #' Evaluation of model group log-likelihood at the provided parameter vector and data.
@@ -671,6 +659,8 @@ ll_AdPaik_eval <- function(params, dataset, centre, time_axis, dropout_matrix, e
 #' integral, performed through the function @time_int_eval.
 #'
 #' @return Group log-likelihood evaluation
+#'
+#' @keywords internal
 
 ll_AdPaik_centre_eval <- function(params, dataset, dropout_matrix, e_matrix){
   
@@ -758,7 +748,7 @@ ll_AdPaik_centre_eval <- function(params, dataset, dropout_matrix, e_matrix){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' One-dimensional analysis of log-likelihood function
+#' One-Dimensional Analysis of log-Likelihood Function
 #'
 #' @description
 #' Function for studying the log-likelihood function from the point of view of a single parameter and, therefore,
@@ -1002,17 +992,16 @@ AdPaik_1D <- function(formula, data, time_axis,
     if(flag_plot){
       param_1D <- param_optimal[iter]
       ll_1D <- ll_optimized[iter]
-      plot_ll_1D.AdPaik(param_1D, index_param_to_vary, ll_1D, params,
-                        params_range_min[index_param_to_vary], 
-                        params_range_max[index_param_to_vary],
-                        dataset, centre, time_axis, dropout_matrix, e_matrix,
-                        n_points, cex, cex_max, color_bg, color_max_bg, pch)
+      plot_ll_1D(param_1D, index_param_to_vary, ll_1D, params,
+                 params_range_min[index_param_to_vary], 
+                 params_range_max[index_param_to_vary],
+                 dataset, centre, time_axis, dropout_matrix, e_matrix,
+                 n_points, cex, cex_max, color_bg, color_max_bg, pch)
     }
   }
   
   return_list <- list("EstimatedParameter" = param_optimal,
                       "OptimizedLoglikelihood" = ll_optimized)
-  class(return_list) <- "AdPaik_1D"
   
   return (return_list)
 }

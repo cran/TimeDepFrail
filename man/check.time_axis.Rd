@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.R
 \name{check.time_axis}
 \alias{check.time_axis}
-\title{Check correctness of time domain subdivision}
+\title{Check Correctness of Time Domain Subdivision}
 \usage{
 check.time_axis(time_axis)
 }
@@ -16,3 +16,4 @@ An error is returned if any condition is not satisfied.
 The function controls that the time domain is a vector and it has at least 2 elements and that all of them are not negative.
 Moreover, it checks that all its elements are non-negative and properly ordered, in an ascending way.
 }
+\keyword{internal}

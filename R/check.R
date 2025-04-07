@@ -1,14 +1,15 @@
 #' @title
-#' Check correctness of time domain subdivision
+#' Check Correctness of Time Domain Subdivision
 #'
 #' @description
 #' The function controls that the time domain is a vector and it has at least 2 elements and that all of them are not negative.
 #' Moreover, it checks that all its elements are non-negative and properly ordered, in an ascending way.
 #'
-#'
 #' @param time_axis Numerical vector of temporal domain subdivision.
 #'
 #' @return An error is returned if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.time_axis <- function(time_axis){
   
@@ -17,7 +18,7 @@ check.time_axis <- function(time_axis){
     stop("'time_axis' input variable must be a vector.")
   
   # Check all elements of the time_axis vector are non-negative
-  # Check length is greater tha 1
+  # Check length is greater than 1
   length_time_axis <- length(time_axis)
   
   if(length_time_axis <= 1)
@@ -38,7 +39,7 @@ check.time_axis <- function(time_axis){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check structure of Posterior Frailty Estimates
+#' Check Structure of Posterior Frailty Estimates
 #'
 #' @description
 #' The function controls that the structure of the 'Posterior Frailty Estimates' coincides with the theoretical one.
@@ -51,6 +52,8 @@ check.time_axis <- function(time_axis){
 #' @param n_centres Number of centres/clusters.
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.structure_post_frailty_est <- function(post_frailty_est, n_intervals, n_centres){
   # Check class
@@ -87,7 +90,7 @@ check.structure_post_frailty_est <- function(post_frailty_est, n_intervals, n_ce
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check structure of Posterior Frailty Variances
+#' Check Structure of Posterior Frailty Variances
 #'
 #' @description
 #' The function controls that the structure of the 'Posterior Frailty Variances' coincides with the theoretical one.
@@ -101,6 +104,8 @@ check.structure_post_frailty_est <- function(post_frailty_est, n_intervals, n_ce
 #'
 #' @return An error if any condition is not satisfied.
 #' 
+#' @keywords internal
+
 check.structure_post_frailty_var <- function(post_frailty_var, n_intervals, n_centres){
   # Check class
   if(!inherits(post_frailty_var, "PFV.AdPaik"))
@@ -115,7 +120,7 @@ check.structure_post_frailty_var <- function(post_frailty_var, n_intervals, n_ce
     stop("Wrong structure for the first element of 'post_frailty_var' variable.")
   if(length(post_frailty_var$alpha) != n_centres)
     stop("Different values for the number of centres and number of time-independent posterior frailty variances (alphaVar).")
-  
+
   if(names(post_frailty_var)[2] != "epsVar")
     stop("Wrong name for the second element of 'post_frailty_var' variable.")
   if(! is.matrix(post_frailty_var$epsVar))
@@ -126,17 +131,17 @@ check.structure_post_frailty_var <- function(post_frailty_var, n_intervals, n_ce
     stop("Different values for the number of intervals and the time-varying posterior variances (epsVar).")
   
   if(names(post_frailty_var)[3] != "ZVar")
-    stop("Wrong name for the third element of 'post_frailty_var' variable.")
+    stop("Wrong name for the third element of 'post_frailty_var' variable.")  
   if(! is.matrix(post_frailty_var$ZVar))
     stop("Wrong structure for the third element of 'post_frailty_var' variable.")
-  if((dim(post_frailty_var$Z)[1]) != n_centres)
+  if((dim(post_frailty_var$ZVar)[1]) != n_centres)
     stop("Different values for the number of centres and the overall time-varying posterior variances.")
-  if((dim(post_frailty_var$Z)[2]) != n_intervals)
+  if((dim(post_frailty_var$ZVar)[2]) != n_intervals)
     stop("Different values for the number of intervals and the overall time-varying posterior variances.")
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check non-negativeness of the posterior frailty estimates
+#' Check Non-Negativeness of the Posterior Frailty Estimates
 #'
 #' @description
 #' The function controls that all posterior frailty estimates are non-negative.
@@ -148,6 +153,8 @@ check.structure_post_frailty_var <- function(post_frailty_var, n_intervals, n_ce
 #' @param n_intervals Number of intervals of the time domain
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.value_post_frailty <- function(post_frailty_est, n_centres, n_intervals){
   # Check that no estimates are negative
@@ -167,7 +174,7 @@ check.value_post_frailty <- function(post_frailty_est, n_centres, n_intervals){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check numerosity of posterior frailty estimates
+#' Check Numerosity of Posterior Frailty Estimates
 #'
 #' @description
 #' The function controls that a time-dependent posterior frailty estimate is computed for each centre
@@ -177,6 +184,8 @@ check.value_post_frailty <- function(post_frailty_est, n_centres, n_intervals){
 #' @param centre_codes Numerical vector of length equal to the number of distinct centres/clusters in the study
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.post_frailty_centre <- function(post_frailty_est, centre_codes){
   # Extract number of centres
@@ -191,49 +200,7 @@ check.post_frailty_centre <- function(post_frailty_est, centre_codes){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check structure of Posterior Frailty Confidence Interval
-#'
-#' @description
-#' The function controls that the structure of the 'Posterior Frailty Confidence Interval' coincides with the theoretical one.
-#'
-#' @param post_frailty_CI Posterior frailty estimates S3 object of class 'PFCI.AdPaik', composed of two elements:
-#' - left confidence interval for the estimated \eqn{\hat{Z}_{jk}, \forall j,k}
-#' - right confidence interval for the estimated \eqn{\hat{Z}_{jk}, \forall j,k}
-#' @param n_intervals Number of intervals of the time-domain
-#' @param n_centres Number of centres/clusters.
-#'
-#' @return An error if any condition is not satisfied.
-check.structure_post_frailty_CI <- function(post_frailty_CI, n_intervals, n_centres){
-  # Check class
-  if(!inherits(post_frailty_CI, "PFCI.AdPaik"))
-    stop("First argument is not of class 'PFCI.AdPaik'.")
-  
-  # Check structure
-  if((! is.list(post_frailty_CI)) || (length(post_frailty_CI) != 2))
-    stop("Wrong structure for first input variable (post_frailty_CI).")
-  
-  # Check internal structures
-  if(names(post_frailty_CI)[1] != "PostFrailtyCI_left")
-    stop("Wrong name for the first element of 'post_frailty_CI' variable.")
-  if(! is.matrix(post_frailty_CI$PostFrailtyCI_left))
-    stop("Wrong structure for the first element of 'post_frailty_CI' variable.")
-  if((dim(post_frailty_CI$PostFrailtyCI_left)[1]) != n_centres)
-    stop("Different values for the number of centres and the left confidence interval.")
-  if((dim(post_frailty_CI$PostFrailtyCI_left)[2]) != n_intervals)
-    stop("Different values for the number of intervals and the left confidence interval.")
-  
-  if(names(post_frailty_CI)[2] != "PostFrailtyCI_right")
-    stop("Wrong name for the second element of 'post_frailty_CI' variable.")
-  if(! is.matrix(post_frailty_CI$PostFrailtyCI_right))
-    stop("Wrong structure for the second element of 'post_frailty_CI' variable.")
-  if((dim(post_frailty_CI$PostFrailtyCI_right)[1]) != n_centres)
-    stop("Different values for the number of centres and the right confidence interval.")
-  if((dim(post_frailty_CI$PostFrailtyCI_right)[2]) != n_intervals)
-    stop("Different values for the number of intervals and the right confidence interval.")
-}
-#-------------------------------------------------------------------------------
-#' @title
-#' Check correctness for the cluster variable
+#' Check Correctness for the Cluster Variable
 #'
 #' @description
 #' The function controls that the provided cluster variable is a vector, with at least two levels. Indeed, it is not possible to
@@ -242,7 +209,9 @@ check.structure_post_frailty_CI <- function(post_frailty_CI, n_intervals, n_cent
 #' @param centre Numerical vector of length equal to the number of individuals in the study, containing the individual grouo/cluster
 #' membership.
 #'
-#' @return An error if any condition is not satisfied
+#' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.centre <- function(centre){
   # Check that it is a vector
@@ -262,7 +231,7 @@ check.centre <- function(centre){
 
 #-------------------------------------------------------------------------------
 #' @title
-#' Check correctness of plot variables pch and color
+#' Check Correctness of Plot Variables Pch and Color
 #'
 #' @description
 #' The function controls that the input variables 'pch_type' and 'color_bg' have the correct structure,
@@ -277,6 +246,8 @@ check.centre <- function(centre){
 #' @param color_bg Numerical vector of length equal to the number of centres and containing the color of the point for each faculty.
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.pchtype_colorbg <- function(centre_codes, pch_type, color_bg){
   # Check structure
@@ -304,7 +275,7 @@ check.pchtype_colorbg <- function(centre_codes, pch_type, color_bg){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check correctness of legend position
+#' Check Correctness of Legend Position
 #'
 #' @description
 #' The function controls that the provided position of the legend is correct. It can be either
@@ -313,6 +284,8 @@ check.pchtype_colorbg <- function(centre_codes, pch_type, color_bg){
 #' @param pos_legend Either a numerical vector of length 2, with the x and y coordinates, or a string with the exact position.
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.poslegend <- function(pos_legend){
   
@@ -342,7 +315,7 @@ check.poslegend <- function(pos_legend){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check correctness of frailty standard deviation
+#' Check Correctness of Frailty Standard Deviation
 #'
 #' @description
 #' The function controls that the frailty standard deviation vector has a length equal to the number of inyervals of the time domain and
@@ -352,6 +325,8 @@ check.poslegend <- function(pos_legend){
 #' @param n_intervals Number of intervals of the time-domain
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.frailty_dispersion <- function(frailty_dispersion, n_intervals){
   
@@ -376,7 +351,7 @@ check.frailty_dispersion <- function(frailty_dispersion, n_intervals){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check positiviness of the frailty standard deviation
+#' Check Positivity of the Frailty Standard Deviation
 #' 
 #' @description
 #' The method controls that the frailty standard deviation vector has non-negative elements
@@ -385,6 +360,8 @@ check.frailty_dispersion <- function(frailty_dispersion, n_intervals){
 #' @param n_intervals Number of intervals of the time-domain
 #' 
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.pos_frailty_sd <- function(sd, n_intervals){
   # Check correctness of dimension of sd vector
@@ -399,7 +376,7 @@ check.pos_frailty_sd <- function(sd, n_intervals){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check correctness of formula terms
+#' Check Correctness of Formula Terms
 #'
 #' @description
 #' The function controls that the terms composing the formula object provided in input to the main model are correct.
@@ -414,6 +391,8 @@ check.pos_frailty_sd <- function(sd, n_intervals){
 #' @param data Dataset in which these variables can be found.
 #'
 #' @return An error if any condition is not satified.
+#' 
+#' @keywords internal
 
 check.formula_terms <- function(formula, data){
   # Extract terms from the formula object
@@ -467,7 +446,7 @@ check.formula_terms <- function(formula, data){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check correctness of parameters categories
+#' Check Correctness of Parameters Categories
 #'
 #' @description
 #' The function controls that the provided parameters categories have a length equal to the number of categories required by the model
@@ -481,6 +460,8 @@ check.formula_terms <- function(formula, data){
 #' @param categories_range_max Numerical vector of length equal to 5, containing the maximum ranges for the parameters belonging to those categories.
 #'
 #' @return An error if the any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.categories_params <- function(n_categories, categories_range_min, categories_range_max){
   # Check dimension of categories vectors
@@ -495,7 +476,7 @@ check.categories_params <- function(n_categories, categories_range_min, categori
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check correctness of input parameters
+#' Check Correctness of Input Parameters
 #'
 #' @description
 #' The function controls that the input parameter vector have a length equal to the theoretical one required by the model and that each parameter
@@ -509,6 +490,8 @@ check.categories_params <- function(n_categories, categories_range_min, categori
 #' parameter.
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.range_params <- function(optimal_params, params_range_min, params_range_max){
   # Extract numerosity of the parameters
@@ -538,7 +521,7 @@ check.time_domain <- function(time_domain, flag_time_domain){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check coherence between flag for optimal parameters and optimal parameters
+#' Check Coherence Between Flag for Optimal Parameters and Optimal Parameters
 #'
 #' @description
 #' The function controls that one of the following condition is satisfied:
@@ -550,6 +533,8 @@ check.time_domain <- function(time_domain, flag_time_domain){
 #' (no optimal parameters), FALSE.
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.flag_optimal_params <- function(optimal_params, flag_optimal_params){
   # If the flag is activated, then the user needs to provide the optimal parameter vector
@@ -565,7 +550,7 @@ check.flag_optimal_params <- function(optimal_params, flag_optimal_params){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check structure for the Parameters Confidence Interval
+#' Check Structure for the Parameters Confidence Interval
 #'
 #' @description
 #' The function controls that the structure of the Parameters Confidence Intervals coincides with the theoretical one.
@@ -575,6 +560,8 @@ check.flag_optimal_params <- function(optimal_params, flag_optimal_params){
 #' - right confidence interval: numerical vector of length equal to the number of parameters in the model
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.structure_paramsCI <- function(parametersCI){
   # Control class
@@ -615,7 +602,7 @@ check.params_range <- function(params_range, n_params){
 }
 #-------------------------------------------------------------------------------
 #' @title 
-#' Check presence of null or nan element value in the dataset
+#' Check Presence of NULL or NaN Element Value in the Dataset
 #' 
 #' @description
 #' The method controls that the dataset does not contain 'NULL', 'null', 'NaN' or 'nan' value.
@@ -623,6 +610,8 @@ check.params_range <- function(params_range, n_params){
 #' @param data Dataset (dataframe)
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.dataset <- function(data){
   # Extract information from input variable
@@ -642,7 +631,7 @@ check.dataset <- function(data){
 }
 #-------------------------------------------------------------------------------
 #' @title 
-#' Check existence of provided input index
+#' Check Existence of Provided Input Index
 #' 
 #' @description
 #' The method controls that the provided input index exists: it cannot be greater than the maximum number
@@ -653,6 +642,8 @@ check.dataset <- function(data){
 #' @param n_params Number of parameters of the model
 #'
 #' @return An error if any condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.index <- function(index, n_params){
   # Control existence of the input index
@@ -662,7 +653,7 @@ check.index <- function(index, n_params){
 }
 #-------------------------------------------------------------------------------
 #' @title
-#' Check positiveness of the multiplicative constant C
+#' Check Positivity of the Multiplicative Constant C
 #' 
 #' @description
 #' The method controls the multiplicative constant C is non-negative (i.e. positive).
@@ -670,6 +661,8 @@ check.index <- function(index, n_params){
 #' @param C_mult Multiplicative constant
 #'
 #' @return An error if the condition is not satisfied.
+#' 
+#' @keywords internal
 
 check.C_mult <- function(C_mult){
   # Controls the constant is positive
